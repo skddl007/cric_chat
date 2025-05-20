@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -16,17 +15,17 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Environment
+.env
+.venv
+env/
 venv/
 ENV/
-.env
-
-# Streamlit
-.streamlit/
 
 # IDE
 .idea/
@@ -34,10 +33,15 @@ ENV/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Project specific
 cache/
 *.log
+.streamlit/secrets.toml
+
+# Database
+*.sqlite3
+*.db
+
+# OS
+.DS_Store
+Thumbs.db

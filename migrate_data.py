@@ -107,6 +107,78 @@ def check_migration():
     
     print("Migration check complete.")
 
+def migrate_local_to_aiven():
+    """
+    Migrates data (cricket_data, documents, embeddings) from a local PostgreSQL database (using fallback credentials) into the Aiven PostgreSQL database (using credentials from config).
+    """
+    import psycopg2
+    import config
+    import json
+    import sys
+
+    # Fallback (local) DB credentials
+    local_db_name = "jsk1_data"
+    local_db_user = "postgres"
+    local_db_password = "Skd6397@@"
+    local_db_host = "localhost"
+    local_db_port = "5432"
+
+    # Aiven DB credentials (from config)
+    aiven_db_name = config.DB_NAME
+    aiven_db_user = config.DB_USER
+    aiven_db_password = config.DB_PASSWORD
+    aiven_db_host = config.DB_HOST
+    aiven_db_port = config.DB_PORT
+
+    try:
+        # Connect to local DB (using fallback credentials)
+        conn_local = psycopg2.connect(dbname=local_db_name, user=local_db_user, password=local_db_password, host=local_db_host, port=local_db_port)
+        cur_local = conn_local.cursor()
+
+        # Connect to Aiven DB (using credentials from config)
+        conn_aiven = psycopg2.connect(dbname=aiven_db_name, user=aiven_db_user, password=aiven_db_password, host=aiven_db_host, port=aiven_db_port, sslmode="require")
+        cur_aiven = conn_aiven.cursor()
+
+        # Migrate cricket_data table (assumed to have the same schema)
+        cur_local.execute("SELECT * FROM cricket_data;")
+        cricket_rows = cur_local.fetchall()
+        if cricket_rows:
+            cur_aiven.execute("TRUNCATE cricket_data;")
+            cur_aiven.executemany("INSERT INTO cricket_data (id, file_name, url, player_id, datetime_original, date, time_of_day, no_of_faces, focus, shot_type, event_id, mood_id, action_id, caption, apparel, brands_and_logos, sublocation_id, location, make, model, copyright, photographer, description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", cricket_rows)
+            print("Migrated cricket_data table.")
+
+        # Migrate documents table (assumed to have columns (id, content, metadata))
+        cur_local.execute("SELECT id, content, metadata FROM documents;")
+        doc_rows = cur_local.fetchall()
+        if doc_rows:
+            cur_aiven.execute("TRUNCATE documents;")
+            cur_aiven.executemany("INSERT INTO documents (id, content, metadata) VALUES (%s, %s, %s);", doc_rows)
+            print("Migrated documents table.")
+
+        # Migrate embeddings table (assumed to have columns (id, embedding, query_text))
+        cur_local.execute("SELECT id, embedding, query_text FROM embeddings;")
+        emb_rows = cur_local.fetchall()
+        if emb_rows:
+            cur_aiven.execute("TRUNCATE embeddings;")
+            cur_aiven.executemany("INSERT INTO embeddings (id, embedding, query_text) VALUES (%s, %s, %s);", emb_rows)
+            print("Migrated embeddings table.")
+
+        conn_aiven.commit()
+        print("Migration completed successfully.")
+    except Exception as e:
+        print("Error migrating data:", e, file=sys.stderr)
+        if conn_aiven:
+            conn_aiven.rollback()
+    finally:
+        if cur_local:
+            cur_local.close()
+        if conn_local:
+            conn_local.close()
+        if cur_aiven:
+            cur_aiven.close()
+        if conn_aiven:
+            conn_aiven.close()
+
 def main():
     """
     Main function
@@ -124,4 +196,11 @@ def main():
         print("Migration failed.")
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Migrate data (from local DB to Aiven DB).")
+    parser.add_argument("--migrate", action="store_true", help="Migrate local data into Aiven DB.")
+    args = parser.parse_args()
+    if args.migrate:
+        migrate_local_to_aiven()
+    else:
+        migrate_data()
