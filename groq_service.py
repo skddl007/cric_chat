@@ -85,16 +85,6 @@ class GroqAPI:
             return self._fallback_generate(prompt)
 
     def _fallback_generate(self, prompt: str) -> str:
-        """
-        Fallback generation method when Groq API is not available
-
-        Args:
-            prompt (str): The prompt
-
-        Returns:
-            str: A fallback response
-        """
-        # For development/testing, we'll use a simple fallback response
         print("Using fallback response generation")
 
         # Extract the question from the prompt

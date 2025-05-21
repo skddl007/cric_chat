@@ -827,13 +827,9 @@ def main():
                         if not filtered_images and similar_images:
                             st.info("Here are images related to your query. For images with multiple players in the same frame, please try a more specific query.")
                         else:
-                            # Display ALL similar images with the current similarity threshold
-                            # No limit on number of images displayed
                             display_similar_images(filtered_images, st.session_state.similarity_threshold,
                                                  key_suffix="current_query", show_slider=used_similarity)
                     else:
-                        # Display similar images with the current similarity threshold
-                        # This will show ALL matching images that meet the threshold
                         display_similar_images(similar_images, st.session_state.similarity_threshold,
                                              key_suffix="current_query", show_slider=used_similarity)
                 elif "No cricket images matching" not in response_text and not is_tabular_response and not is_counting_response:
