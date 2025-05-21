@@ -4,6 +4,7 @@ This file is used as the entry point for Streamlit Cloud deployment.
 """
 
 import os
+import sys
 import streamlit as st
 import nltk
 from pathlib import Path
@@ -70,7 +71,9 @@ def initialize():
 
 # Run the main app
 def main():
-    initialize()
+    # Show a loading screen
+    with st.spinner("Initializing application..."):
+        initialize()
     
     # Import app.py and run it
     try:
@@ -81,8 +84,17 @@ def main():
         
         # Display system information for debugging
         with st.expander("System Information (for debugging)"):
-            st.write("Python version:", os.sys.version)
+            st.write("Python version:", sys.version)
             st.write("Current directory:", os.getcwd())
+            
+            # List installed packages
+            st.write("Installed packages:")
+            try:
+                import pkg_resources
+                packages = sorted([f"{pkg.key}=={pkg.version}" for pkg in pkg_resources.working_set])
+                st.write(packages)
+            except Exception as pkg_err:
+                st.write(f"Error listing packages: {pkg_err}")
             
             # List files in data directory
             data_dir = Path("data")

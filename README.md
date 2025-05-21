@@ -2,81 +2,73 @@
 
 A Streamlit-based chatbot application that uses AI to analyze cricket images and provide insights.
 
-## Features
+## Deployment on Streamlit Cloud
 
-- Upload and analyze cricket match images
-- AI-powered image recognition for cricket scenarios
-- Interactive chat interface
-- PostgreSQL database integration for storing chat history
-- Secure credential management
+### Optimized Project Structure
 
-## Prerequisites
+The project has been optimized for Streamlit Cloud deployment:
 
-- Python 3.8 or higher
-- PostgreSQL database (Aiven PostgreSQL)
-- Streamlit
-- Required Python packages (see requirements.txt)
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/cricket-image-chatbot.git
-cd cricket-image-chatbot
+```
+cricket-image-chatbot/
+├── .streamlit/
+│   └── secrets.toml       # Contains all secrets (don't commit this!)
+├── data/                  # Contains all CSV data files
+│   ├── Action.csv
+│   ├── Event.csv
+│   ├── finalTaggedData.csv
+│   ├── Mood.csv
+│   ├── Players.csv
+│   └── Sublocation.csv
+├── app.py                 # Main application
+├── streamlit_app.py       # Entry point for Streamlit Cloud
+├── pyproject.toml         # Python dependencies (using unversioned dependencies)
+├── packages.txt           # System dependencies
+├── setup.py               # Package setup
+├── __init__.py            # Package initialization
+└── ... (other application files)
 ```
 
-2. Install required packages:
-```bash
-pip install -r requirements.txt
-```
+### Deployment Steps
 
-3. Set up environment variables:
-Create a `.streamlit/secrets.toml` file with the following structure:
+1. Push your code to GitHub
+2. Connect your GitHub repository to Streamlit Cloud
+3. Set the main file path to `streamlit_app.py`
+4. Configure your secrets in Streamlit Cloud
+5. Deploy your app
+
+### Secrets Configuration
+
+In Streamlit Cloud, add the following secrets:
+
 ```toml
-[postgresql]
-host = "your-aiven-host"
-port = "your-aiven-port"
-database = "your-database-name"
-user = "your-username"
-password = "your-password"
+# Database credentials
+DB_NAME = "defaultdb"
+DB_USER = "avnadmin"
+DB_PASSWORD = "your_password"
+DB_HOST = "your_host.aivencloud.com"
+DB_PORT = "24832"
+
+# API settings
+GROQ_API_KEY = "your_groq_api_key"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Embedding model
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 ```
 
-## Database Setup
+### Troubleshooting Deployment Issues
 
-1. Initialize the database:
-```bash
-python init_db.py
-```
+If you encounter issues during deployment:
 
-2. Run data migration (if needed):
-```bash
-python migrate_data.py
-```
+1. Check the Streamlit Cloud logs for specific error messages
+2. Verify that all secrets are correctly configured
+3. Ensure your database is accessible from Streamlit Cloud
+4. The streamlit_app.py includes debugging information that will be displayed if there are issues
 
-## Running the Application
+## Local Development
 
-1. Start the Streamlit app:
-```bash
-streamlit run app.py
-```
-
-2. Open your browser and navigate to the provided local URL (typically http://localhost:8501)
-
-## Security Notes
-
-- Never commit sensitive credentials to version control
-- Keep your `.streamlit/secrets.toml` file secure and local
-- Regularly rotate database credentials
-- Use environment variables for sensitive data in production
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details. "# cric_chat" 
+1. Clone the repository
+2. Create a `.streamlit/secrets.toml` file with your secrets
+3. Install dependencies: `pip install -e .`
+4. Run the app: `streamlit run streamlit_app.py`
